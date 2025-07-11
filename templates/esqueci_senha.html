@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha - Click Vistoria</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            gap: 12px;
+            color: #5a4fcf;
+        }
+
+        .back-link svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .icon-container {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .icon-container svg {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a202c;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .submit-button.loading {
+            color: transparent;
+        }
+
+        .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .submit-button.loading .spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .info-box {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .info-box svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            color: #1890ff;
+        }
+
+        .info-box p {
+            color: #0050b3;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #2f855a;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .success-message svg {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 8px;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('login') }}" class="back-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Voltar ao login
+        </a>
+
+        <div class="icon-container">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0110 0v4"></path>
+            </svg>
+        </div>
+
+        <h1>Recuperar Senha</h1>
+        <p class="subtitle">
+            Digite seu e-mail cadastrado e enviaremos instruções para redefinir sua senha.
+        </p>
+
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            <p>E-mail enviado com sucesso!</p>
+            <p style="font-size: 14px; margin-top: 8px;">Verifique sua caixa de entrada.</p>
+        </div>
+
+        <form id="resetForm" method="POST" action="{{ url_for('esqueci_senha') }}">
+            <div class="form-group">
+                <label for="email">E-mail cadastrado</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    placeholder="seu@email.com" 
+                    required
+                    autocomplete="email"
+                >
+            </div>
+
+            <button type="submit" class="submit-button" id="submitButton">
+                <span class="button-text">Enviar instruções</span>
+                <div class="spinner"></div>
+            </button>
+        </form>
+
+        <div class="info-box">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+            </svg>
+            <p>
+                Você receberá um e-mail com um link para criar uma nova senha. 
+                O link é válido por 24 horas.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('resetForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const button = document.getElementById('submitButton');
+            const errorMsg = document.getElementById('errorMessage');
+            const successMsg = document.getElementById('successMessage');
+            const emailInput = document.getElementById('email');
+            
+            // Limpar mensagens anteriores
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+            
+            // Validar e-mail
+            const email = emailInput.value.trim();
+            if (!email || !email.includes('@')) {
+                errorMsg.textContent = 'Por favor, insira um e-mail válido';
+                errorMsg.classList.add('show');
+                return;
+            }
+            
+            // Adicionar estado de loading
+            button.classList.add('loading');
+            button.disabled = true;
+            
+            // Enviar formulário
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                button.classList.remove('loading');
+                button.disabled = false;
+                
+                if (data.success) {
+                    successMsg.classList.add('show');
+                    emailInput.value = '';
+                    
+                    // Redirecionar após 3 segundos
+                    setTimeout(() => {
+                        window.location.href = '{{ url_for("login") }}';
+                    }, 3000);
+                } else {
+                    errorMsg.textContent = data.message || 'Erro ao enviar e-mail';
+                    errorMsg.classList.add('show');
+                }
+            })
+            .catch(error => {
+                button.classList.remove('loading');
+                button.disabled = false;
+                errorMsg.textContent = 'Erro ao processar solicitação';
+                errorMsg.classList.add('show');
+            });
+        });
+    </script>
+</body>
+</html>

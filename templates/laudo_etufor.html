@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Laudo de Vistoria - ETUFOR</title>
+</head>
+<!-- Cabeçalho com duas imagens laterais e título no centro -->
+<table width="100%" cellpadding="10" cellspacing="0" style="border-bottom: 2px solid #000;">
+    <tr>
+        <!-- Imagem à esquerda do título -->
+        <td width="20%" align="right">
+            <img src="Click_Vistoria_Logoaberto_2.png" alt="Logo Esquerda" width="120" height="120" onerror="this.style.display='none'">
+        </td>
+
+        <!-- Título centralizado -->
+        <td width="60%" align="center">
+            <h2 style="margin: 0;">SISTEMA DE TRANSPORTE URBANO DE PASSAGEIROS E CARGAS</h2>
+            <h3 style="margin: 5px 0;">ETUFOR</h3>
+        </td>
+
+        <!-- Imagem à direita do título -->
+        <td width="20%" align="left">
+            <img src="eutufor.png" alt="Logo Direita" width="120" height="120" onerror="this.style.display='none'">
+        </td>
+    </tr>
+</table>
+
+
+
+
+    <!-- Status da Vistoria -->
+    <div align="center">
+        <h2><b>STATUS: {{ dados.status.upper() }}</b></h2>
+        {% if dados.status == 'Reprovado' %}
+        <p>Este veículo foi <b>REPROVADO</b> na vistoria e não está apto para circulação.</p>
+        {% else %}
+        <p>Este veículo foi <b>APROVADO</b> na vistoria e está apto para circulação.</p>
+        {% endif %}
+    </div>
+
+    <hr>
+
+    <!-- Dados do Proprietário -->
+    <h3><b>DADOS DO PROPRIETÁRIO E USUÁRIO</b></h3>
+    <table border="1" width="100%" cellpadding="8" cellspacing="0">
+        {% if dados.status == 'Reprovado' %}
+    <div style="border: 2px solid red; padding: 15px; margin-bottom: 25px; text-align: center;">
+        <h2 style="color: red;">❌ LAUDO REPROVADO</h2>
+        <p>Este laudo foi analisado e resultou em <strong>REPROVAÇÃO</strong>.</p>
+        <p>Favor verificar os itens inconsistentes e corrigir antes de uma nova vistoria.</p>
+    </div>
+{% endif %}
+
+        <tr>
+            <td><b>PROPRIETÁRIO DO VEÍCULO</b></td>
+            <td>{{ dados.nome }}</td>
+            <td><b>CPF/CNPJ</b></td>
+            <td>{{ dados.cpf or 'Não informado' }}</td>
+        </tr>
+        <tr>
+            <td><b>USUÁRIO</b></td>
+            <td>{{ dados.nome }}</td>
+            <td><b>CPF/CNPJ</b></td>
+            <td>{{ dados.cpf or 'Não informado' }}</td>
+        </tr>
+        <tr>
+            <td><b>EMAIL</b></td>
+            <td>{{ dados.email }}</td>
+            <td><b>TELEFONE</b></td>
+            <td>{{ dados.telefone }}</td>
+        </tr>
+        <tr>
+            <td><b>ENDEREÇO</b></td>
+            <td colspan="3">{{ dados.endereco or 'Não informado' }}</td>
+        </tr>
+        <tr>
+            <td><b>MUNICÍPIO</b></td>
+            <td>FORTALEZA</td>
+            <td><b>UF</b></td>
+            <td>CE</td>
+        </tr>
+        <tr>
+            <td><b>CEP</b></td>
+            <td>{{ dados.cep or 'Não informado' }}</td>
+            <td><b>VALOR VISTORIA</b></td>
+            <td>R$ {{ "%.2f"|format(dados.valor) }}</td>
+        </tr>
+    </table>
+
+    <br>
+
+    <!-- Características do Veículo -->
+    <h3><b>CARACTERÍSTICAS DO VEÍCULO</b></h3>
+    <table border="1" width="100%" cellpadding="8" cellspacing="0">
+        <tr>
+            <td><b>TIPO DE VEÍCULO</b></td>
+            <td>{{ dados.tipo_veiculo }}</td>
+            <td><b>PLACA</b></td>
+            <td>{{ dados.placa or 'Não informado' }}</td>
+        </tr>
+        <tr>
+            <td><b>VEÍCULO ID</b></td>
+            <td>{{ dados.veiculo_id }}</td>
+            <td><b>RENAVAM</b></td>
+            <td>{{ dados.renavam or 'Não informado' }}</td>
+        </tr>
+        <tr>
+            <td><b>CHASSI</b></td>
+            <td>{{ dados.chassi or 'Não informado' }}</td>
+            <td><b>COR</b></td>
+            <td>{{ dados.cor or 'Não informado' }}</td>
+        </tr>
+        <tr>
+            <td><b>MARCA</b></td>
+            <td>{{ dados.marca or 'Não informado' }}</td>
+            <td><b>MODELO</b></td>
+            <td>{{ dados.modelo or 'Não informado' }}</td>
+        </tr>
+        <tr>
+            <td><b>ANO FABRICAÇÃO</b></td>
+            <td>{{ dados.ano_fabricacao or 'Não informado' }}</td>
+            <td><b>VERSÃO</b></td>
+            <td>{{ dados.versao or 'Não informado' }}</td>
+        </tr>
+        <tr>
+            <td><b>DATA SOLICITAÇÃO</b></td>
+            <td>{{ dados.data_solicitacao }}</td>
+            <td><b>DATA REALIZAÇÃO</b></td>
+            <td>{{ dados.data_realizacao or 'Não realizada' }}</td>
+        </tr>
+        <tr>
+            <td><b>COMBUSTÍVEL</b></td>
+            <td>DIESEL</td>
+            <td><b>ÁREA LIVRE (m²)</b></td>
+            <td>NA</td>
+        </tr>
+        <tr>
+            <td><b>PASS. EM PÉ</b></td>
+            <td>NA</td>
+            <td><b>PASS. SENTADOS</b></td>
+            <td>49</td>
+        </tr>
+        <tr>
+            <td><b>CAPACIDADE TOTAL PASS.</b></td>
+            <td>49</td>
+            <td><b>FABRICANTE/MODELO CHASSI</b></td>
+            <td>{{ dados.marca or 'M.BENZ' }}</td>
+        </tr>
+        <tr>
+            <td><b>ANO/MODELO TACÓGRAFO</b></td>
+            <td>NA/</td>
+            <td><b>NA</b></td>
+            <td>SIEMENS VDO AUTOMOTIVE LTDA</td>
+        </tr>
+        <tr>
+            <td><b>NÚMERO TACÓGRAFO</b></td>
+            <td>NA</td>
+            <td><b>SERVIÇO COMPLEMENTAR</b></td>
+            <td>NA</td>
+        </tr>
+    </table>
+
+    <br>
+
+    <!-- Observações -->
+{% if dados.observacoes %}
+<h3><b>OBSERVAÇÕES DA VISTORIA:</b></h3>
+<p>{{ dados.observacoes }}</p>
+<br>
+{% endif %}
+
+<!-- Agora filtramos as fotos -->
+{% set fotos_aprovadas = fotos | selectattr("status", "equalto", "aprovada") | list %}
+{% set fotos_reprovadas = fotos | selectattr("status", "equalto", "reprovada") | list %}
+
+    <!-- Fotos da Vistoria -->
+    {% if fotos_aprovadas %}
+<h3><b>FOTOS DA VISTORIA (APROVADAS)</b></h3>
+<table border="1" width="100%" cellpadding="8" cellspacing="0">
+    {% for i in range(0, fotos_aprovadas|length, 2) %}
+    <tr>
+        <td align="center" width="50%">
+            <img src="{{ fotos_aprovadas[i].url }}" alt="{{ fotos_aprovadas[i].nome }}" width="300" height="200" onerror="this.style.display='none'">
+            <br><b>{{ fotos_aprovadas[i].nome }}</b>
+        </td>
+        {% if fotos_aprovadas[i+1] is defined %}
+        <td align="center" width="50%">
+            <img src="{{ fotos_aprovadas[i+1].url }}" alt="{{ fotos_aprovadas[i+1].nome }}" width="300" height="200" onerror="this.style.display='none'">
+            <br><b>{{ fotos_aprovadas[i+1].nome }}</b>
+        </td>
+        {% else %}
+        <td align="center" width="50%"></td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+
+{% if fotos_reprovadas %}
+<h3><b>FOTOS COM NÃO CONFORMIDADES</b></h3>
+<table border="1" width="100%" cellpadding="8" cellspacing="0">
+    <tr><th>Foto</th><th>Item</th><th>Justificativa</th></tr>
+    {% for foto in fotos_reprovadas %}
+    <tr>
+        <td align="center"><img src="{{ foto.url }}" alt="{{ foto.nome }}" width="200" height="150"></td>
+        <td>{{ foto.nome }}</td>
+        <td>{{ foto.justificativa or "Não informado" }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+    <!-- Itens de Vistoria -->
+    <h3><b>ITENS DE VISTORIA</b></h3>
+    <table border="1" width="100%" cellpadding="8" cellspacing="0">
+        <tr>
+            <th><b>ITEM</b></th>
+            <th><b>VERIF/APROV?</b></th>
+            <th><b>ITEM</b></th>
+            <th><b>VERIF/APROV?</b></th>
+        </tr>
+        <tr>
+            <td colspan="2" align="center"><b>ALIMENTAÇÃO</b></td>
+            <td colspan="2" align="center"><b>LAY OUT E OUTROS</b></td>
+        </tr>
+        <tr>
+            <td>Entrada de ar</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Tacógrafo em funcionamento</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Combustível sem vazamento</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Indicativo preço das passagens</td>
+            <td align="center"><b>NA</b></td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center"><b>ELÉTRICA</b></td>
+            <td>Indicativo capacidade de lotação</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Limpador de para-brisa</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Número do telefone 156 FORTALEZA</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Partida</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Indicativo de origem e destino linha</td>
+            <td align="center"><b>NA</b></td>
+        </tr>
+        <tr>
+            <td>Alternador gerando normal</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Número de ordem do veículo</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Luzes de salão acendem</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Pintura padronizada do veículo</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Setas acendendo</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Logotipo PADRÃO SIT FORTALEZA</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Luzes do painel acendendo</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Ar condicionado</td>
+            <td align="center"><b>NA</b></td>
+        </tr>
+        <tr>
+            <td>Farol alto acendendo</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Saída de Emergência sinalizada</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Farol baixo acendendo</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Martelo de Emergência sinalizado</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Buzina funcionando</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Extintor de incêndio</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Luzes stop de freio acendendo</td>
+            <td align="center"><b>SIM</b></td>
+            <td colspan="2" align="center"><b>CARROCERIA</b></td>
+        </tr>
+        <tr>
+            <td>Campainha funcionando</td>
+            <td align="center"><b>  </b></td>
+            <td>Espelhos retrovisores internos e externos</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Luz de itinerário acendendo</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Janelas funcionando</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center"><b>RODAGEM</b></td>
+            <td>Poltronas passageiros em bom estado</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Pneus e rodas de mesmas dimensões</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Para-choques bom estado</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Pneus em bom estado</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Para-brisa bom estado</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Rodas em bom estado</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Laterais direita e esquerda normais</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center"><b>FREIOS</b></td>
+            <td>Dianteira e traseira normais</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Compressor carregando</td>
+            <td align="center"><b>N/A</b></td>
+            <td>Puxador emergência funcionando</td>
+            <td align="center"><b>N/A</b></td>
+        </tr>
+        <tr>
+            <td>Freio estacionamento</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Quebra-sol funcionando</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Pedal de freio</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Triângulo bom estado</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Sem vazamento de ar</td>
+            <td align="center"><b>SIM</b></td>
+            <td>Vidraça lateral completa</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td colspan="2" align="center"><b>ACESSIBILIDADE</b></td>
+            <td>Cinto de segurança motorista normal</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Rampa de acesso</td>
+            <td align="center"><b>NA</b></td>
+            <td>Luz de placa acendendo</td>
+            <td align="center"><b>SIM</b></td>
+        </tr>
+        <tr>
+            <td>Letreiro luminoso</td>
+            <td align="center"><b>N/A</b></td>
+            <td>Luz stop de freio funcionando</td>
+            <td align="center"><b>N/A</b></td>
+        </tr>
+        <tr>
+            <td>Plataforma elevatória</td>
+            <td align="center"><b>NA</b></td>
+            <td colspan="2" align="center"><b>N/A</b></td>
+        </tr>
+        <tr>
+            <td>Espaço do Cadeirante</td>
+            <td align="center">N/A</td>
+            <td>Catraca/posição</td>
+            <td align="center">N/A</td>
+        </tr>
+        <tr>
+            <td colspan="2"></td>
+            <td>Validador/posição</td>
+            <td align="center">N/A</td>
+        </tr>
+    </table>
+
+    <br>
+
+    <!-- Certificação -->
+    <p><b>ATESTO PARA OS DEVIDOS FINS</b> que o veículo discriminado apresenta boas condições para transporte de passageiros em seus sistemas de transmissão, direção, freios, suspensão, motor, alimentação, refrigeração e elétrico. Ademais, todos os itens presentes no formulário anexo foram verificados e aprovados.</p>
+
+    <br>
+
+    <!-- Assinaturas -->
+    <table border="1" width="100%" cellpadding="8" cellspacing="0">
+        <tr>
+            <td><b>DATA DE INSPEÇÃO</b><br>{{ dados.data_realizacao or '09/05/2024' }}</td>
+            <td><b>NOME COMPLETO / ASSINATURA / CREA DO RESPONSÁVEL</b><br>JOÃO MARCELO BRASIL DE SOUZA | CREA: 0600183670</td>
+        </tr>
+        <tr>
+            <td><b>DATA DE EMISSÃO</b><br>{{ datetime.now().strftime('%d/%m/%Y') }}</td>
+            <td rowspan="2"><b>VINCULADO À ART Nº</b><br>CE20241416005</td>
+        </tr>
+        <tr>
+            <td><b>DATA DE VENCIMENTO</b><br>{{ (datetime.now().replace(year=datetime.now().year + 1)).strftime('%d/%m/%Y') }}</td>
+        </tr>
+    </table>
+
+    <br><br>
+
+    <!-- Seção Modal dos Tipos de Transporte -->
+    <div align="center">
+        <h2><b>VISTORIA DOS MODAIS DE TRANSPORTE REALIZADA PELA ETUFOR</b></h2>
+    </div>
+    <p>A ETUFOR realiza vistorias periódicas em diferentes modalidades de transporte com o objetivo de garantir a segurança dos passageiros, a regularidade dos serviços e a conformidade dos veículos e condutores com as normas estabelecidas. Abaixo, estão detalhados os itens de vistoria e a documentação exigida para cada modalidade:</p>
+
+    
+    
+
+    <!-- Rodapé -->
+    <div align="center">
+        <p><b>EMPRESA TÉCNICA DE TRANSPORTES URBANOS DE FORTALEZA - ETUFOR</b></p>
+        <p>Documento gerado automaticamente em {{ datetime.now().strftime('%d/%m/%Y às %H:%M:%S') }}</p>
+        <br>
+        
+        <!-- Informações Técnicas -->
+        <h3><b>INFORMAÇÕES TÉCNICAS COMPLEMENTARES</b></h3>
+        <p>Este laudo foi emitido com base nas normas técnicas vigentes e legislação específica para cada modalidade de transporte.</p>
+        <p>Válido por 12 (doze) meses a partir da data de emissão, conforme regulamentação municipal.</p>
+        <p>Para dúvidas ou esclarecimentos, entre em contato com a ETUFOR através dos canais oficiais.</p>
+        
+        <br>
+        
+        <!-- Tabela de Assinaturas -->
+        <table border="1" width="80%" cellpadding="15" cellspacing="0">
+            <tr>
+                <td align="center">
+                    <br><br><br>
+                    ________________________________<br>
+                    <b>RESPONSÁVEL TÉCNICO</b><br>
+                    JOÃO MARCELO BRASIL DE SOUZA<br>
+                    CREA: 0600183670
+                </td>
+                <td align="center">
+                    <br><br><br>
+                    ________________________________<br>
+                    <b>PROPRIETÁRIO DO VEÍCULO</b><br>
+                    {{ dados.nome }}
+                </td>
+            </tr>
+        </table>
+        
+        <br>
+        
+        <!-- Informações Legais -->
+        <table border="1" width="100%" cellpadding="8" cellspacing="0">
+            <tr>
+                <td align="center"><b>OBSERVAÇÕES IMPORTANTES</b></td>
+            </tr>
+            <tr>
+                <td>
+                    <p><b>1.</b> Este documento comprova que o veículo foi vistoriado e atende aos requisitos técnicos e de segurança estabelecidos.</p>
+                    <p><b>2.</b> O proprietário/condutor deve portar este laudo durante a operação do veículo.</p>
+                    <p><b>3.</b> Qualquer alteração nas características do veículo invalida este laudo.</p>
+                    <p><b>4.</b> Em caso de dúvidas sobre a validade deste documento, consulte a ETUFOR.</p>
+                    <p><b>5.</b> Este laudo não substitui a documentação obrigatória exigida pelos órgãos de trânsito.</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</body>
+</html>="1" width="100%" cellpadding="8" cellspacing="0">
+        <tr><th><b>ITEM</b></th><th><b>VERIF/APROV?</b></th></tr>
+        <tr><td>Carteira Padrão</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>CNH (Carteira Nacional de Habilitação)</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Taxas de Vistoria pagas</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Último Laudo de Vistoria</td><td align="center"><b>SIM</b></td></tr>
+    </table>
+
+    <h4><b>Itens de Vistoria do Veículo</b></h4>
+    <table border="1" width="100%" cellpadding="8" cellspacing="0">
+        <tr><th><b>ITEM</b></th><th><b>VERIF/APROV?</b></th></tr>
+        <tr><td>Parte elétrica</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Caracterização (layout conforme padrão regulamentar)</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Luminoso padronizado</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Pneus</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Estepe</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Limpador de para-brisa</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Freio de estacionamento</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Limpeza geral do veículo</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Para-brisa</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Macaco</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Triângulo</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Chave de roda</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Lataria</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Kilometragem atual</td><td align="center"><b>SIM</b></td></tr>
+        <tr><td>Buzina</td><td align="center"><b>SIM</b></td></tr>
+    </table>
+
+
+    <!-- VEÍCULO DE APLICATIVO -->
+<h3><b>VEÍCULO DE APLICATIVO</b></h3>
+
+<h4><b>Documentação do Veículo</b></h4>
+<table border="1" width="100%" cellpadding="8" cellspacing="0">
+    <tr><th><b>ITEM</b></th><th><b>VERIF/APROV?</b></th></tr>
+    <tr><td>CRLV</td><td align="center"><b>SIM</b></td></tr>
+    <tr><td>Selo de GNV (quando houver instalação de gás)</td><td align="center"><b>SIM</b></td></tr>
+</table>
+
+<h4><b>Documentação do Condutor</b></h4>
+<table border="1" width="100%" cellpadding="8" cellspacing="0">
+    <tr><th><b>ITEM</b></th><th><b>VERIF/APROV?</b></th></tr>
+    <tr><td>CNH com EAR (Exerce Atividade Remunerada)</td><td align="center"><b>SIM</b></td></tr>
+    <tr><td>Taxa de Vistoria paga</td><td align="center"><b>SIM</b></td></tr>
+    <tr><td>Comprovante de Agendamento</td><td align="center"><b>SIM</b></td></tr>
+    <tr><td>Smartphone (Conferir cadastro do condutor junto a Plataforma)</td><td align="center"><b>SIM</b></td></tr>
+</table>
+
+<h4><b>Itens de Vistoria do Veículo</b></h4>
+<table border="1" width="100%" cellpadding="8" cellspacing="0">
+    <tr><th><b>ITEM</b></th><th><b>VERIF/APROV?</b></th></tr>
+    <tr><td>Adesivo da plataforma fixado no vidro traseiro (IDENTIDADE DECRETO 14.285/2019)</td><td align="center"><b>SIM</b></td></tr>
+    <tr><td>Faróis</td><td align="center"><b>SIM</b></td></tr>
+    <tr><td>Setas</td><td align="center"><b>SIM</b></td></tr>
+    <tr><td>Buzina</td><td align="center"><b>SIM</b></td></tr>
+    <tr><td>Pneus</td><td align="center"><b>SIM</b></td></tr>
+    <tr><td>Estepe</td><td align="center"><b>SIM</b></td></tr>
+    <tr><td>Macaco</td><td align="center"><b>SIM</b></td></tr>
+    <tr><td>Chave de rodas</td><td align="center"><b>SIM</b></td></tr>
+    <tr><td>Triângulo</td><td align="center"><b>SIM</b></td></tr>
+    <tr><td>Verificação do motor para identificar instalação de GNV (se não está registrada no documento)</td><td align="center"><b>SIM</b></td></tr>
+    <tr><td>Kilometragem atual</td><td align="center"><b>SIM</b></td></tr>
+</table>
+

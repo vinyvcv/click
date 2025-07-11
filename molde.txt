@@ -1,0 +1,55 @@
+ ------------------------------------------
+# auth_routes.py  -> Login, Logout
+# ------------------------------------------
+
+# ------------------------------------------
+# @app.route('/login')
+# @app.route('/logout')
+
+# ------------------------------------------
+# dashboard_routes.py -> Tela inicial e /analise-vistoria
+# ------------------------------------------
+# @app.route('/')
+# @app.route('/analise-vistoria')
+
+# ------------------------------------------
+# vistoria_routes.py -> Carregar vistoria individual
+# ------------------------------------------
+# @app.route('/carregar-vistoria/<int:vistoria_id>')
+
+# ------------------------------------------
+# laudo_routes.py -> Gerar laudo, baixar laudo/selo, listar salvos
+# ------------------------------------------
+# @app.route('/gerar-laudo')
+# @app.route('/laudos-salvos')
+# @app.route('/download-laudo/<int:laudo_id>')
+# @app.route('/download-selo/<int:laudo_id>')
+
+# ------------------------------------------
+# services/database.py -> engine, queries, salvar_pdf, atualizar_status
+# ------------------------------------------
+# Funções: criar_engine, carregar_vistorias, carregar_lista_vistorias,
+# carregar_dados_veiculo, atualizar_status, salvar_pdf_no_banco
+
+# ------------------------------------------
+# services/pdf_utils.py -> gerar_laudo_etufor_pdf, gerar_selo_pdf, gerar_qr_base64
+# ------------------------------------------
+# Funções: gerar_laudo_etufor_pdf, gerar_selo_pdf, gerar_qr_base64
+
+# ------------------------------------------
+# routes/__init__.py -> register_blueprint para todos os Blueprints
+# ------------------------------------------
+
+# ------------------------------------------
+# __init__.py -> create_app() para montar o app principal
+# ------------------------------------------
+
+# ------------------------------------------
+# run.py -> app.run()
+# ------------------------------------------
+
+# Obs: todas as rotas devem usar Blueprint e serem registradas via register_routes()
+# Ex: auth_bp = Blueprint('auth', __name__)
+#     app.register_blueprint(auth_bp)
+
+# Posso gerar agora qualquer um desses arquivos prontos pra você. É só dizer por onde começar.

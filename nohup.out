@@ -1,0 +1,64 @@
+[2025-07-10 01:38:48 +0000] [114800] [INFO] Starting gunicorn 23.0.0
+[2025-07-10 01:38:48 +0000] [114800] [ERROR] Connection in use: ('0.0.0.0', 3030)
+[2025-07-10 01:38:48 +0000] [114800] [ERROR] connection to ('0.0.0.0', 3030) failed: [Errno 98] Address already in use
+[2025-07-10 01:38:49 +0000] [114800] [ERROR] Connection in use: ('0.0.0.0', 3030)
+[2025-07-10 01:38:49 +0000] [114800] [ERROR] connection to ('0.0.0.0', 3030) failed: [Errno 98] Address already in use
+[2025-07-10 01:38:50 +0000] [114800] [ERROR] Connection in use: ('0.0.0.0', 3030)
+[2025-07-10 01:38:50 +0000] [114800] [ERROR] connection to ('0.0.0.0', 3030) failed: [Errno 98] Address already in use
+[2025-07-10 01:38:51 +0000] [114800] [ERROR] Connection in use: ('0.0.0.0', 3030)
+[2025-07-10 01:38:51 +0000] [114800] [ERROR] connection to ('0.0.0.0', 3030) failed: [Errno 98] Address already in use
+[2025-07-10 01:38:52 +0000] [114800] [ERROR] Connection in use: ('0.0.0.0', 3030)
+[2025-07-10 01:38:52 +0000] [114800] [ERROR] connection to ('0.0.0.0', 3030) failed: [Errno 98] Address already in use
+[2025-07-10 01:38:53 +0000] [114800] [ERROR] Can't connect to ('0.0.0.0', 3030)
+[2025-07-10 01:43:06 +0000] [115164] [INFO] Starting gunicorn 23.0.0
+[2025-07-10 01:43:06 +0000] [115164] [INFO] Listening at: http://0.0.0.0:3040 (115164)
+[2025-07-10 01:43:06 +0000] [115164] [INFO] Using worker: sync
+[2025-07-10 01:43:06 +0000] [115165] [INFO] Booting worker with pid: 115165
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/pdfkit/configuration.py", line 35, in __init__
+    with open(self.wkhtmltopdf) as f:
+FileNotFoundError: [Errno 2] No such file or directory: 'C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/laudo_vistoria/app.py", line 505, in gerar_laudo
+    pdf_bytes_laudo = gerar_laudo_etufor_pdf(dados_vistoria, dados_veiculo, fotos, status)
+  File "/root/laudo_vistoria/app.py", line 301, in gerar_laudo_etufor_pdf
+    config = pdfkit.configuration(wkhtmltopdf="C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe")
+  File "/usr/local/lib/python3.10/dist-packages/pdfkit/api.py", line 86, in configuration
+    return Configuration(**kwargs)
+  File "/usr/local/lib/python3.10/dist-packages/pdfkit/configuration.py", line 38, in __init__
+    raise IOError('No wkhtmltopdf executable found: "%s"\n'
+OSError: No wkhtmltopdf executable found: "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
+If this file exists please check that this process can read it or you can pass path to it manually in method call, check README. Otherwise please install wkhtmltopdf - https://github.com/JazzCore/python-pdfkit/wiki/Installing-wkhtmltopdf
+[2025-07-10 01:50:04 +0000] [115164] [INFO] Handling signal: hup
+[2025-07-10 01:50:04 +0000] [115164] [INFO] Hang up: Master
+[2025-07-10 01:50:04 +0000] [115164] [ERROR] Worker (pid:115165) was sent SIGHUP!
+[2025-07-10 01:50:04 +0000] [115296] [INFO] Booting worker with pid: 115296
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/dist-packages/pdfkit/configuration.py", line 35, in __init__
+    with open(self.wkhtmltopdf) as f:
+FileNotFoundError: [Errno 2] No such file or directory: 'C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/laudo_vistoria/app.py", line 505, in gerar_laudo
+    pdf_bytes_laudo = gerar_laudo_etufor_pdf(dados_vistoria, dados_veiculo, fotos, status)
+  File "/root/laudo_vistoria/app.py", line 301, in gerar_laudo_etufor_pdf
+    config = pdfkit.configuration(wkhtmltopdf="C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe")
+  File "/usr/local/lib/python3.10/dist-packages/pdfkit/api.py", line 86, in configuration
+    return Configuration(**kwargs)
+  File "/usr/local/lib/python3.10/dist-packages/pdfkit/configuration.py", line 38, in __init__
+    raise IOError('No wkhtmltopdf executable found: "%s"\n'
+OSError: No wkhtmltopdf executable found: "C:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe"
+If this file exists please check that this process can read it or you can pass path to it manually in method call, check README. Otherwise please install wkhtmltopdf - https://github.com/JazzCore/python-pdfkit/wiki/Installing-wkhtmltopdf
+[2025-07-10 04:03:37 +0000] [2123] [INFO] Starting gunicorn 23.0.0
+[2025-07-10 04:03:37 +0000] [2123] [INFO] Listening at: http://0.0.0.0:3040 (2123)
+[2025-07-10 04:03:37 +0000] [2123] [INFO] Using worker: sync
+[2025-07-10 04:03:37 +0000] [2124] [INFO] Booting worker with pid: 2124
+[2025-07-10 06:15:41 +0000] [2123] [INFO] Handling signal: hup
+[2025-07-10 06:15:41 +0000] [2123] [INFO] Hang up: Master
+[2025-07-10 06:15:41 +0000] [5956] [INFO] Booting worker with pid: 5956
+[2025-07-10 06:15:41 +0000] [2123] [ERROR] Worker (pid:2124) was sent SIGHUP!

@@ -1,0 +1,562 @@
+<!-- templates/analise_vistoria.html -->
+{% extends "base.html" %}
+
+{% block title %}Análise de Vistoria - Sistema de Vistoria{% endblock %}
+
+{% block extra_css %}
+<style>
+    #vistoria-select {
+        font-size: 16px;
+        padding: 10px;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.1);
+        cursor: pointer;
+    }
+    
+    .select-vistoria {
+        transition: all 0.3s;
+    }
+    
+    .select-vistoria:hover {
+        transform: scale(1.05);
+    }
+    
+    .badge {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+    
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 2px solid #dee2e6;
+    }
+    
+    .foto-container {
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+        background: #f8f9fa;
+    }
+    
+    .foto-container img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .foto-status {
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mb-4"><i class="fas fa-search"></i> Análise de Vistoria</h1>
+        
+        <!-- Seletor de Vistoria -->
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label for="vistoria-select" class="form-label fw-bold">Selecione a Vistoria:</label>
+                        <select id="vistoria-select" class="form-select form-select-lg">
+                            <option value="">Escolha uma vistoria...</option>
+                            {% for v in vistorias_lista %}
+                                <option value="{{ v.vistoria_id }}">
+                                    #{{ v.vistoria_id }} - {{ v.nome }} | 
+                                    CPF: {{ v.cpf if v.cpf else 'Não informado' }} | 
+                                    Placa: {{ v.placa or 'Sem placa' }} | 
+                                    Data: {{ v.data_solicitacao.strftime('%d/%m/%Y') if v.data_solicitacao else 'N/A' }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Tabela com vistorias pendentes -->
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <h5>Vistorias Pendentes de Análise</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nome</th>
+                                        <th>CPF</th>
+                                        <th>Placa</th>
+                                        <th>Data</th>
+                                        <th>Tipo</th>
+                                        <th>Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for v in vistorias_lista %}
+                                    <tr>
+                                        <td><strong>#{{ v.vistoria_id }}</strong></td>
+                                        <td>{{ v.nome }}</td>
+                                        <td>{{ v.cpf if v.cpf else 'Não informado' }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary">
+                                                {{ v.placa or 'Sem placa' }}
+                                            </span>
+                                        </td>
+                                        <td>{{ v.data_solicitacao.strftime('%d/%m/%Y') if v.data_solicitacao else 'N/A' }}</td>
+                                        <td>{{ v.tipo_veiculo or 'N/A' }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-primary select-vistoria" 
+                                                    data-vistoria-id="{{ v.vistoria_id }}">
+                                                <i class="fas fa-search"></i> Analisar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de Conteúdo da Vistoria -->
+        <div id="vistoria-content" style="display: none;">
+            <!-- Dados do Cliente e Veículo -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-user"></i> Dados do Cliente</h5>
+                        </div>
+                        <div class="card-body" id="dados-cliente">
+                            <!-- Preenchido via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-car"></i> Dados do Veículo</h5>
+                        </div>
+                        <div class="card-body" id="dados-veiculo">
+                            <!-- Preenchido via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informações Adicionais -->
+            <div class="card mt-4">
+                <div class="card-body" id="info-adicionais">
+                    <!-- Preenchido via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Fotos da Vistoria -->
+            <div class="card mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-camera"></i> Fotos da Vistoria</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="fotos-container">
+                        <!-- Fotos serão inseridas via JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status e Ações -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5>Status Geral da Vistoria</h5>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="status-vistoria" id="status-aprovado" value="Aprovado" checked>
+                        <label class="form-check-label" for="status-aprovado">
+                            <i class="fas fa-check-circle text-success"></i> Aprovado
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="status-vistoria" id="status-reprovado" value="Reprovado">
+                        <label class="form-check-label" for="status-reprovado">
+                            <i class="fas fa-times-circle text-danger"></i> Reprovado
+                        </label>
+                    </div>
+                    <hr>
+                    <button id="gerar-laudo" class="btn btn-primary btn-lg">
+                        <i class="fas fa-file-pdf"></i> Gerar Laudo ETUFOR e Atualizar Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Loading -->
+<div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center p-4">
+                <div class="spinner-border text-primary mb-3" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <h5>Processando...</h5>
+                <p class="mb-0">Gerando laudo e atualizando status</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+    
+$(document).ready(function() {
+    let vistoriaData = null;
+
+    // Carregar vistoria quando selecionada no select
+    $('#vistoria-select').change(function() {
+        const vistoriaId = $(this).val();
+        if (!vistoriaId) {
+            $('#vistoria-content').hide();
+            return;
+        }
+        carregarVistoria(vistoriaId);
+    });
+
+    // Carregar vistoria quando clicar no botão da tabela
+    $('.select-vistoria').click(function() {
+        const vistoriaId = $(this).data('vistoria-id');
+        $('#vistoria-select').val(vistoriaId); // Sincronizar com o select
+        carregarVistoria(vistoriaId);
+    });
+
+    function carregarVistoria(vistoriaId) {
+        // Mostrar loading
+        $('#vistoria-content').hide();
+        
+        // Carregar dados da vistoria
+        $.get(`/carregar-vistoria/${vistoriaId}`)
+            .done(function(data) {
+                vistoriaData = data;
+                preencherDados(data);
+                $('#vistoria-content').fadeIn();
+                $('#fotos-container').empty();
+data.fotos.forEach((foto, index) => {
+    $('#fotos-container').append(`
+        <div class="col-md-4">
+            <div class="foto-container">
+                <img src="${foto.url}" alt="${foto.nome}" class="img-fluid">
+                <div class="foto-status">
+                    <h6>${foto.nome}</h6>
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input foto-radio" type="radio" 
+                               name="foto-${index}" id="foto-${index}-aprovada" 
+                               value="aprovada" data-foto-url="${foto.url}" 
+                               data-foto-nome="${foto.nome}" checked>
+                        <label class="form-check-label" for="foto-${index}-aprovada">
+                            <span class="text-success">Aprovada</span>
+                        </label>
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input foto-radio" type="radio" 
+                               name="foto-${index}" id="foto-${index}-reprovada" 
+                               value="reprovada">
+                        <label class="form-check-label" for="foto-${index}-reprovada">
+                            <span class="text-danger">Reprovada</span>
+                        </label>
+                    </div>
+
+                    <!-- Aqui entra a justificativa oculta -->
+                    <div class="mt-2 justificativa-container" style="display:none;">
+                        <textarea class="form-control justificativa-text" 
+                                  placeholder="Informe o motivo da reprovação"></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    `);
+});
+
+// Agora, adiciona o listener para exibir/ocultar o campo de justificativa
+// Substitua o seu bloco atual por este abaixo:
+$('.foto-radio').change(function() {
+    const container = $(this).closest('.foto-status').find('.justificativa-container');
+    
+    if ($(this).val() === 'reprovada') {
+        container.show();
+
+        // Forçar o status geral como Reprovado
+        $('#status-reprovado').prop('checked', true);
+        $('#status-aprovado').prop('disabled', true);
+
+    } else {
+        container.hide();
+
+        // Só reabilita o Aprovado se não houver nenhuma outra reprovada
+        let existeReprovada = false;
+        $('.foto-radio:checked').each(function() {
+            if ($(this).val() === 'reprovada') {
+                existeReprovada = true;
+            }
+        });
+
+        if (!existeReprovada) {
+            $('#status-aprovado').prop('disabled', false);
+        }
+    }
+});
+
+
+                // Scroll suave até o conteúdo
+                $('html, body').animate({
+                    scrollTop: $('#vistoria-content').offset().top - 100
+                }, 500);
+            })
+            .fail(function() {
+                alert('Erro ao carregar vistoria');
+            });
+    }
+
+    function preencherDados(data) {
+        // Dados do Cliente
+        $('#dados-cliente').html(`
+            <p><strong>Nome:</strong> ${data.dados_vistoria.nome}</p>
+            <p><strong>Email:</strong> ${data.dados_vistoria.email}</p>
+            <p><strong>Telefone:</strong> ${data.dados_vistoria.telefone}</p>
+            <p><strong>CPF:</strong> ${data.dados_veiculo?.cpf || 'Não informado'}</p>
+            <p><strong>Valor:</strong> R$ ${data.dados_vistoria.valor}</p>
+        `);
+
+        // Dados do Veículo
+        if (data.dados_veiculo) {
+            $('#dados-veiculo').html(`
+                <p><strong>Placa:</strong> ${data.dados_veiculo.placa || 'Não informado'}</p>
+                <p><strong>Marca/Modelo:</strong> ${data.dados_veiculo.marca || 'Não informado'}/${data.dados_veiculo.modelo || 'Não informado'}</p>
+                <p><strong>Ano:</strong> ${data.dados_veiculo.ano_fabricacao || 'Não informado'}</p>
+                <p><strong>Cor:</strong> ${data.dados_veiculo.cor || 'Não informado'}</p>
+                <p><strong>Chassi:</strong> ${data.dados_veiculo.chassi || 'Não informado'}</p>
+                <p><strong>Renavam:</strong> ${data.dados_veiculo.renavam || 'Não informado'}</p>
+            `);
+        } else {
+            $('#dados-veiculo').html('<p class="text-warning">Dados do veículo não encontrados</p>');
+        }
+
+        // Informações Adicionais
+        $('#info-adicionais').html(`
+            <p><strong>Tipo Veículo:</strong> ${data.dados_vistoria.tipo_veiculo}</p>
+            <p><strong>Data Solicitação:</strong> ${new Date(data.dados_vistoria.data_solicitacao).toLocaleDateString('pt-BR')}</p>
+            <p><strong>Data Realização:</strong> ${data.dados_vistoria.data_realizacao ? new Date(data.dados_vistoria.data_realizacao).toLocaleDateString('pt-BR') : 'Aguardando'}</p>
+            <p><strong>Observações:</strong> ${data.dados_vistoria.observacoes || 'Sem observações'}</p>
+        `);
+
+        // Fotos
+        $('#fotos-container').empty();
+        data.fotos.forEach((foto, index) => {
+           $('#fotos-container').append(`
+    <div class="col-md-4">
+        <div class="foto-container">
+            <img src="${foto.url}" alt="${foto.nome}" class="img-fluid">
+            <div class="foto-status">
+                <h6>${foto.nome}</h6>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input foto-radio" type="radio" 
+                           name="foto-${index}" id="foto-${index}-aprovada" 
+                           value="aprovada" data-foto-url="${foto.url}" 
+                           data-foto-nome="${foto.nome}" checked>
+                    <label class="form-check-label" for="foto-${index}-aprovada">
+                        <span class="text-success">Aprovada</span>
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input foto-radio" type="radio" 
+                           name="foto-${index}" id="foto-${index}-reprovada" 
+                           value="reprovada">
+                    <label class="form-check-label" for="foto-${index}-reprovada">
+                        <span class="text-danger">Reprovada</span>
+                    </label>
+                </div>
+
+                <div class="form-group mt-2 justificativa-container" style="display:none;">
+                    <textarea class="form-control justificativa-texto" 
+                              placeholder="Informe o motivo da não conformidade..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+`);
+
+        });
+    }
+$('#fotos-container').on('change', '.foto-radio', function() {
+    const container = $(this).closest('.foto-status').find('.justificativa-container');
+    if ($(this).val() === 'reprovada') {
+        container.show();
+        $('#status-reprovado').prop('checked', true);
+        $('#status-aprovado').prop('disabled', true);
+    } else {
+        container.hide();
+        let existeReprovada = false;
+        $('.foto-radio:checked').each(function() {
+            if ($(this).val() === 'reprovada') {
+                existeReprovada = true;
+            }
+        });
+        if (!existeReprovada) {
+            $('#status-aprovado').prop('disabled', false);
+        }
+    }
+});
+
+$('#gerar-laudo').click(function() {
+    const fotos = [];
+
+    $('.foto-status').each(function() {
+        const url = $(this).find('.foto-radio[data-foto-url]').data('foto-url');
+        const nome = $(this).find('.foto-radio[data-foto-nome]').data('foto-nome');
+        const status = $(this).find('.foto-radio:checked').val();
+        const justificativa = $(this).find('.justificativa-text').val() || '';
+
+        fotos.push({
+            url: url,
+            nome: nome,
+            status: status,
+            justificativa: justificativa
+        });
+    });
+
+    const temFotoAprovada = fotos.some(f => f.status === 'aprovada');
+    if (!temFotoAprovada) {
+        alert('⚠️ Nenhuma foto aprovada.');
+        return;
+    }
+
+    const status = $('input[name="status-vistoria"]:checked').val();
+    const vistoriaId = $('#vistoria-select').val();
+
+    $('#loadingModal').modal('show');
+
+    $.ajax({
+        url: '/gerar-laudo',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            vistoria_id: vistoriaId,
+            status: status,
+            fotos: fotos
+        }),
+        success: function(response) {
+            $('#loadingModal').modal('hide');
+            if (response.success) {
+                const link = document.createElement('a');
+                link.href = 'data:application/pdf;base64,' + response.pdf_base64;
+                link.download = response.filename;
+                link.click();
+                showAlert('success', '✅ Laudo gerado com sucesso!');
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                showAlert('danger', '❌ Erro: ' + response.error);
+            }
+        },
+        error: function() {
+            $('#loadingModal').modal('hide');
+            showAlert('danger', '❌ Erro de comunicação.');
+        }
+    });
+});
+
+function showAlert(type, message) {
+    const alert = $(`
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+    $('body').append(alert);
+    setTimeout(() => alert.alert('close'), 5000);
+}
+
+
+
+ function preencherDados(data) {
+    $('#fotos-container').empty();
+    data.fotos.forEach((foto, index) => {
+        $('#fotos-container').append(`
+            <div class="col-md-4">
+                <div class="foto-container">
+                    <img src="${foto.url}" alt="${foto.nome}" class="img-fluid">
+                    <div class="foto-status">
+                        <h6>${foto.nome}</h6>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input foto-radio" type="radio" 
+                                   name="foto-${index}" id="foto-${index}-aprovada" 
+                                   value="aprovada" data-foto-url="${foto.url}" 
+                                   data-foto-nome="${foto.nome}" checked>
+                            <label class="form-check-label" for="foto-${index}-aprovada">
+                                <span class="text-success">Aprovada</span>
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input foto-radio" type="radio" 
+                                   name="foto-${index}" id="foto-${index}-reprovada" 
+                                   value="reprovada">
+                            <label class="form-check-label" for="foto-${index}-reprovada">
+                                <span class="text-danger">Reprovada</span>
+                            </label>
+                        </div>
+
+                        <!-- Campo de justificativa -->
+                        <div class="justificativa-container mt-2" style="display: none;">
+                            <textarea class="form-control justificativa-text" rows="2" placeholder="Justifique a reprovação..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `);
+    });
+
+    // Agora monitora as mudanças
+    $('.foto-radio').change(function() {
+        const container = $(this).closest('.foto-status').find('.justificativa-container');
+        if ($(this).val() === 'reprovada') {
+            container.show();
+        } else {
+            container.hide();
+        }
+        validarBotaoGerarLaudo();
+    });
+
+    // Valida na primeira carga
+    validarBotaoGerarLaudo();
+}
+
+function validarBotaoGerarLaudo() {
+    let temReprovada = false;
+
+    $('.foto-radio:checked').each(function() {
+        if ($(this).val() === 'reprovada') {
+            temReprovada = true;
+        }
+    });
+
+    if (temReprovada) {
+        $('#gerar-laudo').prop('disabled', true);
+    } else {
+        $('#gerar-laudo').prop('disabled', false);
+    }
+}
+
+});
+</script>
+{% endblock %}

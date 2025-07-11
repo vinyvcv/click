@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Laudos Salvos - Sistema de Vistoria{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mb-4"><i class="fas fa-folder"></i> Laudos Emitidos</h1>
+
+        <!-- Filtros -->
+        <form method="GET" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <label>Data Início</label>
+                <input type="date" name="data_inicio" value="{{ request.args.get('data_inicio', '') }}" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label>Data Fim</label>
+                <input type="date" name="data_fim" value="{{ request.args.get('data_fim', '') }}" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label>Placa</label>
+                <input type="text" name="placa" value="{{ request.args.get('placa', '') }}" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label>Renavam</label>
+                <input type="text" name="renavam" value="{{ request.args.get('renavam', '') }}" class="form-control">
+            </div>
+            <div class="col-md-12 text-end">
+                <button class="btn btn-primary mt-2">Filtrar</button>
+            </div>
+        </form>
+
+        <!-- Tabela de resultados -->
+        {% if laudos %}
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Vistoria ID</th>
+                                <th>Data Emissão</th>
+                                <th>Placa</th>
+                                <th>Renavam</th>
+                                <th>Chassi</th>
+                                <th>Status</th>
+                                <th>Proprietário</th>
+                                <th>Aprovador</th> <!-- AQUI ENTRA -->
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for laudo in laudos %}
+                            <tr>
+                                <td>{{ laudo.id }}</td>
+                                <td>{{ laudo.vistoria_id }}</td>
+                                <td>{{ laudo.data_emissao.strftime('%d/%m/%Y %H:%M') if laudo.data_emissao else 'N/A' }}</td>
+                                <td>{{ laudo.placa or 'N/A' }}</td>
+                                <td>{{ laudo.renavam or 'N/A' }}</td>
+                                <td>{{ laudo.chassi or 'N/A' }}</td>
+                                <td>
+                                    {% if laudo.status == 1 %}
+                                        Aprovado
+                                    {% elif laudo.status == 0 %}
+                                        Reprovado
+                                    {% else %}
+                                        Indefinido
+                                    {% endif %}
+                                </td>
+                                <td>{{ laudo.nome_proprietario or 'N/A' }}</td>
+                                <td>{{ laudo.nome_aprovador or 'Pendente' }}</td> <!-- NOVO AQUI -->
+                                <td>
+                                    <a href="{{ url_for('download_laudo', laudo_id=laudo.id) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-file-pdf"></i> Laudo
+                                    </a>
+
+                                    {% if laudo.status == 1 %}
+                                    <a href="{{ url_for('download_selo', laudo_id=laudo.id) }}" class="btn btn-sm btn-secondary ms-1">
+                                        <i class="fas fa-certificate"></i> Selo
+                                    </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info mt-4">
+            <i class="fas fa-info-circle"></i> Nenhum laudo encontrado para os filtros aplicados.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

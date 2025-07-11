@@ -1,0 +1,22 @@
+# app.py    Eu iria fazer o seguinte:
+
+#Criar uma tabela no banco de dados pra guardar as tentativas de login, colocar informações como ip, local, navegador. Criar uma lógica verificando se por exemplo houve umas 5 tentativas de login má sucedida, se sim ele bloqueia a conta e envia um email alertando o usuario, fazendo com que ele só possa acessar usando o link enviado no email com um alerta, é pra proteger mais ainda sempre que houver um login que seja de outro local sem ser o de origem da conta ele envia um email informando que a conta foi acessada.
+
+#Sempre bom utilizar 2FA pra proteger mais ainda
+  #  app.run(debug=True)
+
+#Uma alternativa que eu fazia era mascarar os enpoints, limitar requisições, bloquear ips e colocar recaptcha, era quase impossivel desse metodo ai funcionar no meu site, hoje ja tirei do ar, mas era bem legal ver o pesssoal tentando
+
+#Por isso que sempre que vou criar um  sitema de login adiciono no banco de dados o campo de erro de senha pra bloquear o usuário e no código vai a regra de negócio que sempre que colocar uma senha errada vai aumentar o número em +1 até determinado número pra fazer o bloqueio.
+
+
+
+<svg viewBox="0 0 24 24" width="50" height="50" fill="url(#carGradient)">
+  <defs>
+    <linearGradient id="carGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+  </defs>
+  <path d="M9 2L3 12L9 22M15 2L21 12L15 22" stroke="url(#carGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

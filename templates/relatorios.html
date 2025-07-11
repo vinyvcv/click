@@ -1,0 +1,1183 @@
+{% extends "base.html" %}
+
+{% block title %}Relatórios - Sistema de Vistoria{% endblock %}
+{% block page_title %}Relatórios e Analytics{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-card {
+        background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+        border: 1px solid #E2E8F0;
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stats-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
+    }
+
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+        line-height: 1;
+    }
+
+    .stats-label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stats-change {
+        font-size: 0.75rem;
+        margin-top: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        display: inline-block;
+    }
+
+    .stats-change.positive {
+        background-color: #DCFCE7;
+        color: #166534;
+    }
+
+    .stats-change.negative {
+        background-color: #FEE2E2;
+        color: #991B1B;
+    }
+
+    .chart-container {
+        position: relative;
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 2rem;
+        height: 400px;
+    }
+
+    .chart-container canvas {
+        max-height: 300px !important;
+    }
+
+    .chart-container.small {
+        height: 350px;
+    }
+
+    .chart-container.small canvas {
+        max-height: 250px !important;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #E5E7EB;
+    }
+
+    .chart-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .filter-section {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow);
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 1rem;
+        align-items: end;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border: 1px solid #D1D5DB;
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(4, 3, 17, 0.1);
+    }
+
+    .btn-filter {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-filter:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .export-section {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .btn-export {
+        background: white;
+        border: 2px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-export:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+
+    .data-table {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+    }
+
+    .table {
+        margin: 0;
+    }
+
+    .table thead th {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody td {
+        padding: 1rem;
+        border-bottom: 1px solid #F3F4F6;
+        vertical-align: middle;
+    }
+
+    .table tbody tr:hover {
+        background-color: #F8FAFC;
+    }
+
+    .status-badge {
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-aprovado {
+        background: #DCFCE7;
+        color: #166534;
+    }
+
+    .status-recusado {
+        background: #FEE2E2;
+        color: #991B1B;
+    }
+
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        border-radius: 12px;
+        padding: 0.5rem;
+        min-width: 200px;
+    }
+
+    .dropdown-item {
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+    }
+
+    .dropdown-item:hover {
+        background-color: #F3F4F6;
+        transform: translateX(5px);
+    }
+
+    .dropdown-item.text-danger:hover {
+        background-color: #FEE2E2;
+        color: #DC2626 !important;
+    }
+
+    .dropdown-item i {
+        width: 16px;
+        font-size: 0.875rem;
+    }
+
+    .dropdown-toggle::after {
+        display: none;
+    }
+
+    .btn-outline-secondary {
+        border-color: #D1D5DB;
+        color: #6B7280;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #F3F4F6;
+        border-color: #9CA3AF;
+        color: #374151;
+    }
+
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+        z-index: 10;
+    }
+
+    @media (max-width: 768px) {
+        .stats-number {
+            font-size: 2rem;
+        }
+        
+        .filter-row {
+            flex-direction: column;
+        }
+        
+        .filter-group {
+            min-width: unset;
+        }
+        
+        .export-section {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Estatísticas Principais -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card">
+                <div class="stats-number">{{ dados.total_laudos or 0 }}</div>
+                <div class="stats-label">Total de Laudos</div>
+                <div class="stats-change positive">
+                    <i class="fas fa-arrow-up"></i> +{{ dados.laudos_mes or 0 }} este mês
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card">
+                <div class="stats-number">{{ dados.aprovados or 0 }}</div>
+                <div class="stats-label">Aprovados</div>
+                <div class="stats-change positive">
+                    <i class="fas fa-check"></i> {{ dados.taxa_aprovacao or 0 }}% taxa
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card">
+                <div class="stats-number">{{ dados.recusados or 0 }}</div>
+                <div class="stats-label">Recusados</div>
+                <div class="stats-change negative">
+                    <i class="fas fa-times"></i> {{ 100 - (dados.taxa_aprovacao or 0) }}% taxa
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card">
+                <div class="stats-number">{{ dados.laudos_hoje or 0 }}</div>
+                <div class="stats-label">Hoje</div>
+                <div class="stats-change positive">
+                    <i class="fas fa-calendar-day"></i> {{ dados.laudos_semana or 0 }} esta semana
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filter-section">
+        <h5 class="mb-3">
+            <i class="fas fa-filter me-2"></i>
+            Filtros de Relatório
+        </h5>
+        <form id="form-filtros">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label class="filter-label">Data Início</label>
+                    <input type="date" class="form-control" id="data_inicio" name="data_inicio">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Data Fim</label>
+                    <input type="date" class="form-control" id="data_fim" name="data_fim">
+                </div>
+                <div class="filter-group">
+                    <button type="submit" class="btn-filter">
+                        <i class="fas fa-search"></i>
+                        Filtrar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Botões de Exportação -->
+    <div class="export-section">
+        <button class="btn-export" onclick="exportarRelatorio('csv')">
+            <i class="fas fa-file-csv"></i>
+            Exportar CSV
+        </button>
+        <button class="btn-export" onclick="exportarRelatorio('excel')">
+            <i class="fas fa-file-excel"></i>
+            Exportar Excel
+        </button>
+        <button class="btn-export" onclick="imprimirRelatorio()">
+            <i class="fas fa-print"></i>
+            Imprimir
+        </button>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row">
+        <!-- Gráfico de Pizza - Distribuição de Status -->
+        <div class="col-lg-4 mb-4">
+            <div class="chart-container small">
+                <div class="chart-header">
+                    <h6 class="chart-title">
+                        <i class="fas fa-chart-pie me-2"></i>
+                        Distribuição por Status
+                    </h6>
+                </div>
+                <div style="position: relative; height: 250px;">
+                    <canvas id="grafico-pizza"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Linha - Evolução Temporal -->
+        <div class="col-lg-8 mb-4">
+            <div class="chart-container small">
+                <div class="chart-header">
+                    <h6 class="chart-title">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Evolução das Aprovações (Últimos 30 dias)
+                    </h6>
+                </div>
+                <div style="position: relative; height: 250px;">
+                    <canvas id="grafico-linha"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Gráfico de Barras - Evolução Mensal -->
+        <div class="col-12 mb-4">
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h6 class="chart-title">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Evolução Mensal (Últimos 12 meses)
+                    </h6>
+                </div>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="grafico-barras"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela de Dados Recentes -->
+    <div class="data-table">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Vistoria</th>
+                        <th>Data/Hora</th>
+                        <th>Status</th>
+                        <th>Selo</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-dados">
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="fas fa-spinner fa-spin me-2"></i>
+                            Carregando dados...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay d-none" id="loading-overlay">
+    <div class="text-center">
+        <div class="loading mb-3"></div>
+        <p>Processando dados...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Dados dos gráficos (vindos do backend)
+    let dadosRelatorio;
+    try {
+        dadosRelatorio = JSON.parse('{{ dados | tojson | safe }}');
+    } catch (e) {
+        dadosRelatorio = {};
+    }
+    
+    // Garantir que todas as propriedades existam
+    dadosRelatorio = {
+        total_laudos: dadosRelatorio.total_laudos || 0,
+        aprovados: dadosRelatorio.aprovados || 0,
+        recusados: dadosRelatorio.recusados || 0,
+        taxa_aprovacao: dadosRelatorio.taxa_aprovacao || 0,
+        laudos_hoje: dadosRelatorio.laudos_hoje || 0,
+        laudos_semana: dadosRelatorio.laudos_semana || 0,
+        laudos_mes: dadosRelatorio.laudos_mes || 0,
+        aprovacoes_por_dia: dadosRelatorio.aprovacoes_por_dia || [],
+        evolucao_mensal: dadosRelatorio.evolucao_mensal || []
+    };
+    
+    // Configurações dos gráficos
+    const configGraficos = {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 2,
+        plugins: {
+            legend: {
+                labels: {
+                    font: {
+                        family: 'Inter'
+                    }
+                }
+            }
+        }
+    };
+
+    // Gráfico de Pizza - Status
+    const ctxPizza = document.getElementById('grafico-pizza').getContext('2d');
+    new Chart(ctxPizza, {
+        type: 'doughnut',
+        data: {
+            labels: ['Aprovados', 'Recusados'],
+            datasets: [{
+                data: [dadosRelatorio.aprovados || 0, dadosRelatorio.recusados || 0],
+                backgroundColor: ['#10B981', '#EF4444'],
+                borderWidth: 0,
+                cutout: '70%'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: {
+                            family: 'Inter'
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Gráfico de Linha - Evolução Diária
+    const ctxLinha = document.getElementById('grafico-linha').getContext('2d');
+    const dadosLinha = dadosRelatorio.aprovacoes_por_dia || [];
+    
+    new Chart(ctxLinha, {
+        type: 'line',
+        data: {
+            labels: dadosLinha.length > 0 ? dadosLinha.map(item => {
+                const data = new Date(item.data);
+                return data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            }) : ['Sem dados'],
+            datasets: [
+                {
+                    label: 'Aprovados',
+                    data: dadosLinha.length > 0 ? dadosLinha.map(item => item.aprovados) : [0],
+                    borderColor: '#10B981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Recusados',
+                    data: dadosLinha.length > 0 ? dadosLinha.map(item => item.recusados) : [0],
+                    borderColor: '#EF4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 2.5,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                },
+                x: {
+                    ticks: {
+                        maxTicksLimit: 10
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            family: 'Inter'
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Gráfico de Barras - Evolução Mensal
+    const ctxBarras = document.getElementById('grafico-barras').getContext('2d');
+    const dadosBarras = dadosRelatorio.evolucao_mensal || [];
+    
+    new Chart(ctxBarras, {
+        type: 'bar',
+        data: {
+            labels: dadosBarras.length > 0 ? dadosBarras.map(item => item.periodo) : ['Sem dados'],
+            datasets: [
+                {
+                    label: 'Aprovados',
+                    data: dadosBarras.length > 0 ? dadosBarras.map(item => item.aprovados) : [0],
+                    backgroundColor: '#10B981',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Recusados',
+                    data: dadosBarras.length > 0 ? dadosBarras.map(item => item.recusados) : [0],
+                    backgroundColor: '#EF4444',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 3,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            family: 'Inter'
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Filtros de Data
+    document.getElementById('form-filtros').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const dataInicio = document.getElementById('data_inicio').value;
+        const dataFim = document.getElementById('data_fim').value;
+        
+        if (!dataInicio || !dataFim) {
+            alert('Por favor, selecione ambas as datas');
+            return;
+        }
+        
+        if (new Date(dataInicio) > new Date(dataFim)) {
+            alert('Data início deve ser anterior à data fim');
+            return;
+        }
+        
+        mostrarLoading();
+        
+        fetch(`/relatorios/api/dados-periodo?data_inicio=${dataInicio}&data_fim=${dataFim}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                atualizarDashboard(data);
+                esconderLoading();
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao carregar dados do período');
+                esconderLoading();
+            });
+    });
+
+    // Funções de Exportação
+    function exportarRelatorio(formato) {
+        const dataInicio = document.getElementById('data_inicio').value;
+        const dataFim = document.getElementById('data_fim').value;
+        
+        let url = `/relatorios/exportar?formato=${formato}`;
+        if (dataInicio && dataFim) {
+            url += `&data_inicio=${dataInicio}&data_fim=${dataFim}`;
+        }
+        
+        mostrarLoading();
+        
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro na exportação');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // Criar download do arquivo
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                
+                // Nome do arquivo baseado na data atual
+                const agora = new Date();
+                const dataFormatada = agora.toISOString().split('T')[0];
+                const extensao = formato === 'csv' ? 'csv' : 'xlsx';
+                
+                if (dataInicio && dataFim) {
+                    link.download = `relatorio_${dataInicio}_${dataFim}.${extensao}`;
+                } else {
+                    link.download = `relatorio_completo_${dataFormatada}.${extensao}`;
+                }
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                
+                esconderLoading();
+                showAlert('success', `Relatório ${formato.toUpperCase()} baixado com sucesso!`);
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                esconderLoading();
+                showAlert('error', 'Erro ao exportar relatório. Tente novamente.');
+            });
+    }
+
+    function imprimirRelatorio() {
+        // Criar versão otimizada para impressão
+        const dataInicio = document.getElementById('data_inicio').value;
+        const dataFim = document.getElementById('data_fim').value;
+        
+        let periodoTexto = 'Período: Todos os registros';
+        if (dataInicio && dataFim) {
+            const dataInicioFormatada = new Date(dataInicio).toLocaleDateString('pt-BR');
+            const dataFimFormatada = new Date(dataFim).toLocaleDateString('pt-BR');
+            periodoTexto = `Período: ${dataInicioFormatada} à ${dataFimFormatada}`;
+        }
+        
+        // Abrir nova janela para impressão
+        const janelaImpressao = window.open('', '_blank');
+        janelaImpressao.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Relatório de Vistorias - Click Vistoria</title>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        margin: 20px;
+                        color: #333;
+                    }
+                    .header { 
+                        text-align: center; 
+                        margin-bottom: 30px;
+                        border-bottom: 2px solid #040311;
+                        padding-bottom: 20px;
+                    }
+                    .header h1 { 
+                        color: #040311; 
+                        margin: 0;
+                        font-size: 24px;
+                    }
+                    .header h2 { 
+                        color: #6B7280; 
+                        margin: 5px 0;
+                        font-size: 18px;
+                        font-weight: normal;
+                    }
+                    .stats { 
+                        display: flex; 
+                        justify-content: space-around; 
+                        margin: 20px 0;
+                        background: #F8FAFC;
+                        padding: 20px;
+                        border-radius: 8px;
+                    }
+                    .stat { 
+                        text-align: center; 
+                        padding: 10px;
+                    }
+                    .stat-number { 
+                        font-size: 28px; 
+                        font-weight: bold; 
+                        color: #040311;
+                        display: block;
+                    }
+                    .stat-label { 
+                        font-size: 12px; 
+                        color: #6B7280;
+                        text-transform: uppercase;
+                        margin-top: 5px;
+                    }
+                    .periodo {
+                        text-align: center;
+                        font-size: 14px;
+                        color: #6B7280;
+                        margin: 20px 0;
+                        font-style: italic;
+                    }
+                    table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        margin-top: 20px;
+                        font-size: 12px;
+                    }
+                    th, td { 
+                        border: 1px solid #E5E7EB; 
+                        padding: 8px; 
+                        text-align: left; 
+                    }
+                    th { 
+                        background-color: #040311; 
+                        color: white;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                        font-size: 10px;
+                    }
+                    tr:nth-child(even) { 
+                        background-color: #F9FAFB; 
+                    }
+                    .status-aprovado { 
+                        background: #DCFCE7; 
+                        color: #166534; 
+                        padding: 4px 8px; 
+                        border-radius: 12px;
+                        font-size: 10px;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                    }
+                    .status-recusado { 
+                        background: #FEE2E2; 
+                        color: #991B1B; 
+                        padding: 4px 8px; 
+                        border-radius: 12px;
+                        font-size: 10px;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                    }
+                    .footer {
+                        margin-top: 30px;
+                        text-align: center;
+                        font-size: 10px;
+                        color: #9CA3AF;
+                        border-top: 1px solid #E5E7EB;
+                        padding-top: 20px;
+                    }
+                    @media print {
+                        body { margin: 0; }
+                        .header { page-break-inside: avoid; }
+                        table { page-break-inside: auto; }
+                        tr { page-break-inside: avoid; page-break-after: auto; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>🚗 Click Vistoria</h1>
+                    <h2>Relatório de Laudos de Vistoria</h2>
+                </div>
+                
+                <div class="periodo">${periodoTexto}</div>
+                
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-number">${dadosRelatorio.total_laudos || 0}</span>
+                        <div class="stat-label">Total de Laudos</div>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">${dadosRelatorio.aprovados || 0}</span>
+                        <div class="stat-label">Aprovados</div>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">${dadosRelatorio.recusados || 0}</span>
+                        <div class="stat-label">Recusados</div>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">${dadosRelatorio.taxa_aprovacao || 0}%</span>
+                        <div class="stat-label">Taxa de Aprovação</div>
+                    </div>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Vistoria</th>
+                            <th>Data/Hora</th>
+                            <th>Status</th>
+                            <th>Selo</th>
+                            <th>Arquivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>001</td>
+                            <td>VST-2024-001</td>
+                            <td>10/06/2025 14:30</td>
+                            <td><span class="status-aprovado">Aprovado</span></td>
+                            <td>SEL001</td>
+                            <td>laudo_001.pdf</td>
+                        </tr>
+                        <tr>
+                            <td>002</td>
+                            <td>VST-2024-002</td>
+                            <td>10/06/2025 13:15</td>
+                            <td><span class="status-recusado">Recusado</span></td>
+                            <td>-</td>
+                            <td>laudo_002.pdf</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="footer">
+                    <p>Relatório gerado em ${new Date().toLocaleString('pt-BR')} | Click Vistoria - Sistema de Laudos</p>
+                </div>
+            </body>
+            </html>
+        `);
+        
+        janelaImpressao.document.close();
+        
+        // Aguardar carregamento e imprimir
+        janelaImpressao.onload = function() {
+            setTimeout(() => {
+                janelaImpressao.print();
+                janelaImpressao.close();
+            }, 250);
+        };
+        
+        showAlert('success', 'Relatório enviado para impressão!');
+    }
+
+    // Funções auxiliares
+    function mostrarLoading() {
+        document.getElementById('loading-overlay').classList.remove('d-none');
+    }
+
+    function esconderLoading() {
+        document.getElementById('loading-overlay').classList.add('d-none');
+    }
+
+    function atualizarDashboard(data) {
+        // Atualizar cards de estatísticas
+        const totais = data.totais;
+        
+        // Aqui você atualizaria os cards com os novos dados
+        console.log('Dados atualizados:', totais);
+        
+        // Mostrar notificação de sucesso
+        showAlert('success', 'Dados atualizados com sucesso!');
+    }
+
+    function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-custom alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(alertDiv);
+        
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+
+    // Carregar dados iniciais da tabela
+    document.addEventListener('DOMContentLoaded', function() {
+        carregarTabelaDados();
+    });
+
+    function carregarTabelaDados() {
+        // Simular carregamento de dados da tabela
+        setTimeout(() => {
+            const tbody = document.getElementById('tabela-dados');
+            tbody.innerHTML = `
+                <tr>
+                    <td>001</td>
+                    <td>VST-2024-001</td>
+                    <td>10/06/2025 14:30</td>
+                    <td><span class="status-badge status-aprovado">Aprovado</span></td>
+                    <td>SEL001</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="visualizarLaudo(1)">
+                                    <i class="fas fa-eye me-2"></i>Visualizar Laudo
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="baixarPDF(1)">
+                                    <i class="fas fa-download me-2"></i>Baixar PDF
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="reimprimirLaudo(1)">
+                                    <i class="fas fa-print me-2"></i>Reimprimir
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="enviarEmail(1)">
+                                    <i class="fas fa-envelope me-2"></i>Enviar por Email
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="duplicarVistoria(1)">
+                                    <i class="fas fa-copy me-2"></i>Duplicar Vistoria
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="excluirLaudo(1)">
+                                    <i class="fas fa-trash me-2"></i>Excluir
+                                </a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>002</td>
+                    <td>VST-2024-002</td>
+                    <td>10/06/2025 13:15</td>
+                    <td><span class="status-badge status-recusado">Recusado</span></td>
+                    <td>-</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="visualizarLaudo(2)">
+                                    <i class="fas fa-eye me-2"></i>Visualizar Laudo
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="reprocessarVistoria(2)">
+                                    <i class="fas fa-redo me-2"></i>Reprocessar
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="editarVistoria(2)">
+                                    <i class="fas fa-edit me-2"></i>Editar Dados
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="duplicarVistoria(2)">
+                                    <i class="fas fa-copy me-2"></i>Duplicar Vistoria
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="excluirLaudo(2)">
+                                    <i class="fas fa-trash me-2"></i>Excluir
+                                </a></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }, 1000);
+    }
+
+    // Funções para as ações da tabela
+    function visualizarLaudo(id) {
+        // Abrir modal ou nova aba com o laudo
+        window.open(`/laudos/${id}/visualizar`, '_blank');
+    }
+
+    function baixarPDF(id) {
+        // Download direto do PDF
+        const link = document.createElement('a');
+        link.href = `/laudos/${id}/download`;
+        link.download = `laudo_${id}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showAlert('success', 'Download iniciado!');
+    }
+
+    function reimprimirLaudo(id) {
+        if (confirm('Deseja reimprimir este laudo?')) {
+            fetch(`/laudos/${id}/reimprimir`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('success', 'Laudo reenviado para impressão!');
+                    } else {
+                        showAlert('error', 'Erro ao reimprimir laudo');
+                    }
+                })
+                .catch(error => {
+                    showAlert('error', 'Erro na operação');
+                });
+        }
+    }
+
+    function enviarEmail(id) {
+        const email = prompt('Digite o email de destino:');
+        if (email && email.includes('@')) {
+            fetch(`/laudos/${id}/enviar-email`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('success', `Laudo enviado para ${email}!`);
+                } else {
+                    showAlert('error', 'Erro ao enviar email');
+                }
+            });
+        }
+    }
+
+    function duplicarVistoria(id) {
+        if (confirm('Deseja criar uma nova vistoria baseada nesta?')) {
+            fetch(`/vistorias/${id}/duplicar`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('success', `Nova vistoria criada: ${data.nova_vistoria_id}`);
+                        // Opcional: redirecionar para a nova vistoria
+                        // window.location.href = `/vistorias/${data.nova_vistoria_id}`;
+                    }
+                });
+        }
+    }
+
+    function reprocessarVistoria(id) {
+        if (confirm('Deseja reprocessar esta vistoria recusada?')) {
+            mostrarLoading();
+            fetch(`/vistorias/${id}/reprocessar`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    esconderLoading();
+                    if (data.success) {
+                        showAlert('success', 'Vistoria reprocessada com sucesso!');
+                        // Recarregar dados da tabela
+                        carregarTabelaDados();
+                    } else {
+                        showAlert('error', 'Erro ao reprocessar vistoria');
+                    }
+                });
+        }
+    }
+
+    function editarVistoria(id) {
+        // Redirecionar para página de edição
+        window.location.href = `/vistorias/${id}/editar`;
+    }
+
+    function excluirLaudo(id) {
+        if (confirm('⚠️ ATENÇÃO: Esta ação não pode ser desfeita!\n\nDeseja realmente excluir este laudo?')) {
+            fetch(`/laudos/${id}/excluir`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('success', 'Laudo excluído com sucesso!');
+                        carregarTabelaDados(); // Recarregar tabela
+                    } else {
+                        showAlert('error', 'Erro ao excluir laudo');
+                    }
+                });
+        }
+    }
+</script>
+{% endblock %}
