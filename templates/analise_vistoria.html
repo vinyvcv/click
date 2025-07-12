@@ -240,84 +240,13 @@ $(document).ready(function() {
     });
 
     function carregarVistoria(vistoriaId) {
-        // Mostrar loading
         $('#vistoria-content').hide();
-        
-        // Carregar dados da vistoria
+
         $.get(`/carregar-vistoria/${vistoriaId}`)
             .done(function(data) {
                 vistoriaData = data;
                 preencherDados(data);
                 $('#vistoria-content').fadeIn();
-                $('#fotos-container').empty();
-data.fotos.forEach((foto, index) => {
-    $('#fotos-container').append(`
-        <div class="col-md-4">
-            <div class="foto-container">
-                <img src="${foto.url}" alt="${foto.nome}" class="img-fluid">
-                <div class="foto-status">
-                    <h6>${foto.nome}</h6>
-
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input foto-radio" type="radio" 
-                               name="foto-${index}" id="foto-${index}-aprovada" 
-                               value="aprovada" data-foto-url="${foto.url}" 
-                               data-foto-nome="${foto.nome}" checked>
-                        <label class="form-check-label" for="foto-${index}-aprovada">
-                            <span class="text-success">Aprovada</span>
-                        </label>
-                    </div>
-
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input foto-radio" type="radio" 
-                               name="foto-${index}" id="foto-${index}-reprovada" 
-                               value="reprovada">
-                        <label class="form-check-label" for="foto-${index}-reprovada">
-                            <span class="text-danger">Reprovada</span>
-                        </label>
-                    </div>
-
-                    <!-- Aqui entra a justificativa oculta -->
-                    <div class="mt-2 justificativa-container" style="display:none;">
-                        <textarea class="form-control justificativa-text" 
-                                  placeholder="Informe o motivo da reprovação"></textarea>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    `);
-});
-
-// Agora, adiciona o listener para exibir/ocultar o campo de justificativa
-// Substitua o seu bloco atual por este abaixo:
-$('.foto-radio').change(function() {
-    const container = $(this).closest('.foto-status').find('.justificativa-container');
-    
-    if ($(this).val() === 'reprovada') {
-        container.show();
-
-        // Forçar o status geral como Reprovado
-        $('#status-reprovado').prop('checked', true);
-        $('#status-aprovado').prop('disabled', true);
-
-    } else {
-        container.hide();
-
-        // Só reabilita o Aprovado se não houver nenhuma outra reprovada
-        let existeReprovada = false;
-        $('.foto-radio:checked').each(function() {
-            if ($(this).val() === 'reprovada') {
-                existeReprovada = true;
-            }
-        });
-
-        if (!existeReprovada) {
-            $('#status-aprovado').prop('disabled', false);
-        }
-    }
-});
-
 
                 // Scroll suave até o conteúdo
                 $('html, body').animate({
@@ -335,7 +264,7 @@ $('.foto-radio').change(function() {
             <p><strong>Nome:</strong> ${data.dados_vistoria.nome}</p>
             <p><strong>Email:</strong> ${data.dados_vistoria.email}</p>
             <p><strong>Telefone:</strong> ${data.dados_vistoria.telefone}</p>
-            <p><strong>CPF:</strong> ${data.dados_veiculo?.cpf || 'Não informado'}</p>
+            <p><strong>CPF:</strong> ${data.dados_vistoria.cpf || 'Não informado'}</p>
             <p><strong>Valor:</strong> R$ ${data.dados_vistoria.valor}</p>
         `);
 
@@ -361,202 +290,142 @@ $('.foto-radio').change(function() {
             <p><strong>Observações:</strong> ${data.dados_vistoria.observacoes || 'Sem observações'}</p>
         `);
 
-        // Fotos
+        // Fotos da Vistoria
         $('#fotos-container').empty();
         data.fotos.forEach((foto, index) => {
-           $('#fotos-container').append(`
-    <div class="col-md-4">
-        <div class="foto-container">
-            <img src="${foto.url}" alt="${foto.nome}" class="img-fluid">
-            <div class="foto-status">
-                <h6>${foto.nome}</h6>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input foto-radio" type="radio" 
-                           name="foto-${index}" id="foto-${index}-aprovada" 
-                           value="aprovada" data-foto-url="${foto.url}" 
-                           data-foto-nome="${foto.nome}" checked>
-                    <label class="form-check-label" for="foto-${index}-aprovada">
-                        <span class="text-success">Aprovada</span>
-                    </label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input foto-radio" type="radio" 
-                           name="foto-${index}" id="foto-${index}-reprovada" 
-                           value="reprovada">
-                    <label class="form-check-label" for="foto-${index}-reprovada">
-                        <span class="text-danger">Reprovada</span>
-                    </label>
-                </div>
-
-                <div class="form-group mt-2 justificativa-container" style="display:none;">
-                    <textarea class="form-control justificativa-texto" 
-                              placeholder="Informe o motivo da não conformidade..."></textarea>
-                </div>
-            </div>
-        </div>
-    </div>
-`);
-
-        });
-    }
-$('#fotos-container').on('change', '.foto-radio', function() {
-    const container = $(this).closest('.foto-status').find('.justificativa-container');
-    if ($(this).val() === 'reprovada') {
-        container.show();
-        $('#status-reprovado').prop('checked', true);
-        $('#status-aprovado').prop('disabled', true);
-    } else {
-        container.hide();
-        let existeReprovada = false;
-        $('.foto-radio:checked').each(function() {
-            if ($(this).val() === 'reprovada') {
-                existeReprovada = true;
-            }
-        });
-        if (!existeReprovada) {
-            $('#status-aprovado').prop('disabled', false);
-        }
-    }
-});
-
-$('#gerar-laudo').click(function() {
-    const fotos = [];
-
-    $('.foto-status').each(function() {
-        const url = $(this).find('.foto-radio[data-foto-url]').data('foto-url');
-        const nome = $(this).find('.foto-radio[data-foto-nome]').data('foto-nome');
-        const status = $(this).find('.foto-radio:checked').val();
-        const justificativa = $(this).find('.justificativa-text').val() || '';
-
-        fotos.push({
-            url: url,
-            nome: nome,
-            status: status,
-            justificativa: justificativa
-        });
-    });
-
-    const temFotoAprovada = fotos.some(f => f.status === 'aprovada');
-    if (!temFotoAprovada) {
-        alert('⚠️ Nenhuma foto aprovada.');
-        return;
-    }
-
-    const status = $('input[name="status-vistoria"]:checked').val();
-    const vistoriaId = $('#vistoria-select').val();
-
-    $('#loadingModal').modal('show');
-
-    $.ajax({
-        url: '/gerar-laudo',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            vistoria_id: vistoriaId,
-            status: status,
-            fotos: fotos
-        }),
-        success: function(response) {
-            $('#loadingModal').modal('hide');
-            if (response.success) {
-                const link = document.createElement('a');
-                link.href = 'data:application/pdf;base64,' + response.pdf_base64;
-                link.download = response.filename;
-                link.click();
-                showAlert('success', '✅ Laudo gerado com sucesso!');
-                setTimeout(() => location.reload(), 2000);
-            } else {
-                showAlert('danger', '❌ Erro: ' + response.error);
-            }
-        },
-        error: function() {
-            $('#loadingModal').modal('hide');
-            showAlert('danger', '❌ Erro de comunicação.');
-        }
-    });
-});
-
-function showAlert(type, message) {
-    const alert = $(`
-        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `);
-    $('body').append(alert);
-    setTimeout(() => alert.alert('close'), 5000);
-}
-
-
-
- function preencherDados(data) {
-    $('#fotos-container').empty();
-    data.fotos.forEach((foto, index) => {
-        $('#fotos-container').append(`
-            <div class="col-md-4">
-                <div class="foto-container">
-                    <img src="${foto.url}" alt="${foto.nome}" class="img-fluid">
-                    <div class="foto-status">
-                        <h6>${foto.nome}</h6>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input foto-radio" type="radio" 
-                                   name="foto-${index}" id="foto-${index}-aprovada" 
-                                   value="aprovada" data-foto-url="${foto.url}" 
-                                   data-foto-nome="${foto.nome}" checked>
-                            <label class="form-check-label" for="foto-${index}-aprovada">
-                                <span class="text-success">Aprovada</span>
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input foto-radio" type="radio" 
-                                   name="foto-${index}" id="foto-${index}-reprovada" 
-                                   value="reprovada">
-                            <label class="form-check-label" for="foto-${index}-reprovada">
-                                <span class="text-danger">Reprovada</span>
-                            </label>
-                        </div>
-
-                        <!-- Campo de justificativa -->
-                        <div class="justificativa-container mt-2" style="display: none;">
-                            <textarea class="form-control justificativa-text" rows="2" placeholder="Justifique a reprovação..."></textarea>
+            $('#fotos-container').append(`
+                <div class="col-md-4">
+                    <div class="foto-container">
+                        <img src="${foto.url}" alt="${foto.nome}" class="img-fluid">
+                        <div class="foto-status">
+                            <h6>${foto.nome}</h6>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input foto-radio" type="radio" 
+                                       name="foto-${index}" id="foto-${index}-aprovada" 
+                                       value="aprovada" data-foto-url="${foto.url}" 
+                                       data-foto-nome="${foto.nome}" checked>
+                                <label class="form-check-label" for="foto-${index}-aprovada">
+                                    <span class="text-success">Aprovada</span>
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input foto-radio" type="radio" 
+                                       name="foto-${index}" id="foto-${index}-reprovada" 
+                                       value="reprovada">
+                                <label class="form-check-label" for="foto-${index}-reprovada">
+                                    <span class="text-danger">Reprovada</span>
+                                </label>
+                            </div>
+                            <div class="justificativa-container mt-2" style="display: none;">
+                                <textarea class="form-control justificativa-text" rows="2" placeholder="Justifique a reprovação..."></textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
+            `);
+        });
+
+        // Listener das fotos
+        $('.foto-radio').change(function() {
+            const container = $(this).closest('.foto-status').find('.justificativa-container');
+            if ($(this).val() === 'reprovada') {
+                container.show();
+                $('#status-reprovado').prop('checked', true);
+                $('#status-aprovado').prop('disabled', true);
+            } else {
+                container.hide();
+                let existeReprovada = false;
+                $('.foto-radio:checked').each(function() {
+                    if ($(this).val() === 'reprovada') {
+                        existeReprovada = true;
+                    }
+                });
+                if (!existeReprovada) {
+                    $('#status-aprovado').prop('disabled', false);
+                }
+            }
+            validarBotaoGerarLaudo();
+        });
+
+        validarBotaoGerarLaudo();
+    }
+
+    function validarBotaoGerarLaudo() {
+        let temReprovada = false;
+        $('.foto-radio:checked').each(function() {
+            if ($(this).val() === 'reprovada') {
+                temReprovada = true;
+            }
+        });
+        $('#gerar-laudo').prop('disabled', temReprovada);
+    }
+
+    $('#gerar-laudo').click(function() {
+        const fotos = [];
+        $('.foto-status').each(function() {
+            const url = $(this).find('.foto-radio[data-foto-url]').data('foto-url');
+            const nome = $(this).find('.foto-radio[data-foto-nome]').data('foto-nome');
+            const status = $(this).find('.foto-radio:checked').val();
+            const justificativa = $(this).find('.justificativa-text').val() || '';
+
+            fotos.push({
+                url: url,
+                nome: nome,
+                status: status,
+                justificativa: justificativa
+            });
+        });
+
+        const temFotoAprovada = fotos.some(f => f.status === 'aprovada');
+        if (!temFotoAprovada) {
+            alert('⚠️ Nenhuma foto aprovada.');
+            return;
+        }
+
+        const status = $('input[name="status-vistoria"]:checked').val();
+        const vistoriaId = $('#vistoria-select').val();
+
+        $('#loadingModal').modal('show');
+
+        $.ajax({
+            url: '/gerar-laudo',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                vistoria_id: vistoriaId,
+                status: status,
+                fotos: fotos
+            }),
+            success: function(response) {
+                $('#loadingModal').modal('hide');
+                if (response.success) {
+                    const link = document.createElement('a');
+                    link.href = 'data:application/pdf;base64,' + response.pdf_base64;
+                    link.download = response.filename;
+                    link.click();
+                    showAlert('success', '✅ Laudo gerado com sucesso!');
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    showAlert('danger', '❌ Erro: ' + response.error);
+                }
+            },
+            error: function() {
+                $('#loadingModal').modal('hide');
+                showAlert('danger', '❌ Erro de comunicação.');
+            }
+        });
+    });
+
+    function showAlert(type, message) {
+        const alert = $(`
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         `);
-    });
-
-    // Agora monitora as mudanças
-    $('.foto-radio').change(function() {
-        const container = $(this).closest('.foto-status').find('.justificativa-container');
-        if ($(this).val() === 'reprovada') {
-            container.show();
-        } else {
-            container.hide();
-        }
-        validarBotaoGerarLaudo();
-    });
-
-    // Valida na primeira carga
-    validarBotaoGerarLaudo();
-}
-
-function validarBotaoGerarLaudo() {
-    let temReprovada = false;
-
-    $('.foto-radio:checked').each(function() {
-        if ($(this).val() === 'reprovada') {
-            temReprovada = true;
-        }
-    });
-
-    if (temReprovada) {
-        $('#gerar-laudo').prop('disabled', true);
-    } else {
-        $('#gerar-laudo').prop('disabled', false);
+        $('body').append(alert);
+        setTimeout(() => alert.alert('close'), 5000);
     }
-}
-
 });
 </script>
 {% endblock %}

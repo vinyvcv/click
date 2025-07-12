@@ -19,6 +19,7 @@ import bcrypt
 from functools import wraps
 import platform
 
+import numpy as np
 
 
 
@@ -466,7 +467,7 @@ def carregar_vistoria(vistoria_id):
     if df_vistoria.empty:
         return jsonify({'error': 'Vistoria não encontrada'}), 404
     
-    dados_vistoria = df_vistoria.iloc[0].to_dict()
+    dados_vistoria = df_vistoria.iloc[0].replace({np.nan: None}).to_dict()
     dados_veiculo = carregar_dados_veiculo(dados_vistoria['veiculo_id'])
 
     # Preparar fotos (já trazendo status e justificativa)
@@ -495,7 +496,6 @@ def carregar_vistoria(vistoria_id):
         'dados_veiculo': dados_veiculo,
         'fotos': fotos
     })
-
 
 @app.route('/gerar-laudo', methods=['POST'])
 @login_required
